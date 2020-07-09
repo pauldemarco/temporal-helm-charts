@@ -178,4 +178,8 @@ data:
 
     publicClient:
       hostPort: "{{ include "temporal.componentname" (list . "frontend") }}:{{ .Values.server.frontend.service.port }}"
+    
+    dynamicConfigClient:
+      filepath: config/dynamicconfig/development_es.yaml
+      pollInterval: "60s"
 {{- end }}
