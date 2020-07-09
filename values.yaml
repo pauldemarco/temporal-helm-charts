@@ -305,14 +305,22 @@ cassandra:
     repo: cassandra
     tag: 3.11.3
     pullPolicy: IfNotPresent
+  livenessProbe:
+    initialDelaySeconds: 0
+  readinessProbe:
+    initialDelaySeconds: 0
   config:
-    cluster_size: 3
+    cluster_size: 1
     ports:
       cql: 9042
     num_tokens: 0
     max_heap_size: 512M
     heap_new_size: 128M
     seed_size: 0
+  env:
+    JVM_OPTS: |-
+      -Dcassandra.skip_wait_for_gossip_to_settle=0
+      -Dcassandra.initial_token=0
   service:
     type: ClusterIP
 
