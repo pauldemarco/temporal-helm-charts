@@ -251,6 +251,17 @@ elasticsearch:
   host: elasticsearch-master-headless
   scheme: http
   port: 9200
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "1000m"
+      memory: "512M"
+  # Permit co-located instances for solitary minikube virtual machines.
+  antiAffinity: "soft"
+  # Shrink default JVM heap.
+  esJavaOpts: "-Xmx128m -Xms128m"
 
 prometheus:
   nodeExporter:
