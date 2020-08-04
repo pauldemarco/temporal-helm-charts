@@ -16,7 +16,7 @@ maintainers:
     url: https://temporal.io/
 
 sources:
-        - https://github.com/temporalio/temporal
+  - https://github.com/temporalio/temporal
 
 dependencies:
   - name: cassandra
@@ -32,6 +32,9 @@ dependencies:
     repository: https://helm.elastic.co
     version: 7.6.2
     condition: elasticsearch.enabled
+  - name: kibana
+    repository: https://helm.elastic.co
+    version: 6.8.10
   - name: kafka
     repository: https://charts.bitnami.com/bitnami
     version: 7.2.9

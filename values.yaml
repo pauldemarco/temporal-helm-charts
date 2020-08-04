@@ -30,8 +30,7 @@ server:
     prometheus:
       timerType: histogram
   podAnnotations: {}
-  resources:
-    {}
+  resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -226,7 +225,6 @@ web:
     #    hosts:
     #      - chart-example.local
 
-
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -262,6 +260,17 @@ elasticsearch:
   host: elasticsearch-master-headless
   scheme: http
   port: 9200
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "1000m"
+      memory: "512M"
+  # Permit co-located instances for solitary minikube virtual machines.
+  antiAffinity: "soft"
+  # Shrink default JVM heap.
+  esJavaOpts: "-Xmx128m -Xms128m"
 
 prometheus:
   enabled: true
@@ -284,43 +293,43 @@ grafana:
     dashboardproviders.yaml:
       apiVersion: 1
       providers:
-      - name: 'default'
-        orgId: 1
-        folder: ''
-        type: file
-        disableDeletion: false
-        editable: true
-        options:
-          path: /var/lib/grafana/dashboards/default
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
   datasources:
-   datasources.yaml:
-     apiVersion: 1
-     datasources:
-     - name: TemporalMetrics
-       type: prometheus
-       url: http://{{ .Release.Name }}-prometheus-server
-       access: proxy
-       isDefault: true
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: TemporalMetrics
+          type: prometheus
+          url: http://{{ .Release.Name }}-prometheus-server
+          access: proxy
+          isDefault: true
   dashboards:
-     default:
-       frontend-github:
-         url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/frontend.json
-         datasource: TemporalMetrics
-       temporal-github:
-         url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/temporal.json
-         datasource: TemporalMetrics
-       history-github:
-         url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/history.json
-         datasource: TemporalMetrics
-       matching-github:
-         url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/matching.json
-         datasource: TemporalMetrics
-       clusteroverview-github:
-         url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/10000.json
-         datasource: TemporalMetrics
-       common-github:
-         url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/common.json
-         datasource: TemporalMetrics
+    default:
+      frontend-github:
+        url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/frontend.json
+        datasource: TemporalMetrics
+      temporal-github:
+        url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/temporal.json
+        datasource: TemporalMetrics
+      history-github:
+        url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/history.json
+        datasource: TemporalMetrics
+      matching-github:
+        url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/matching.json
+        datasource: TemporalMetrics
+      clusteroverview-github:
+        url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/10000.json
+        datasource: TemporalMetrics
+      common-github:
+        url: https://raw.githubusercontent.com/temporalio/temporal-dashboards/master/dashboards/common.json
+        datasource: TemporalMetrics
 
 cassandra:
   enabled: true
@@ -331,7 +340,8 @@ cassandra:
     tag: 3.11.3
     pullPolicy: IfNotPresent
   config:
-    cluster_size: 3
+    # cluster_size: 3
+    cluster_size: 1
     ports:
       cql: 9042
     num_tokens: 4
@@ -340,6 +350,14 @@ cassandra:
     seed_size: 0
   service:
     type: ClusterIP
+    livenessProbe:
+    initialDelaySeconds: 0
+  readinessProbe:
+    initialDelaySeconds: 0
+  env:
+    JVM_OPTS: |-
+      -Dcassandra.skip_wait_for_gossip_to_settle=0
+      -Dcassandra.initial_token=0
 
 mysql:
   enabled: false
